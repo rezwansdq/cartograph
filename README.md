@@ -42,7 +42,21 @@ Fetch real restaurants. Needs a Yelp API key in `.env` (copy `.env.example`):
 cartograph restaurants --city "London, Ontario, Canada" --radius-km 8
 ```
 
-Both write `site/data/restaurants.geojson`. Preview the site locally:
+Both write `site/data/restaurants.geojson`.
+
+Use the free [Yelp Open Dataset](https://www.yelp.com/dataset) instead of the API.
+Download it, then put `yelp_academic_dataset_business.json` in `data/yelp-open/`:
+
+```bash
+cartograph yelp-open --list-cities
+cartograph yelp-open --city Philadelphia --state PA
+```
+
+This writes to `data/` (git-ignored), because the dataset is licensed for personal,
+educational and academic use. Read its Dataset User Agreement before publishing a map
+built from it.
+
+Preview the site locally:
 
 ```bash
 python3 -m http.server -d site 8000

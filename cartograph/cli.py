@@ -4,6 +4,7 @@ import argparse
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -49,6 +50,26 @@ def cmd_restaurants(args: argparse.Namespace) -> None:
     _write(score_restaurants(restaurants, config), args.out, args.city, "yelp", config)
 
 
+def cmd_yelp_open(args: argparse.Namespace) -> None:
+    from cartograph.sources import yelp_open
+
+    if not args.file.exists():
+        raise SystemExit("Dataset file not found: %s" % args.file)
+    if args.list_cities:
+        for (city, state), count in yelp_open.top_cities(args.file):
+            print("  %6d  %s, %s" % (count, city, state))
+        return
+    if not args.city:
+        raise SystemExit("Pass --city (and ideally --state), or --list-cities to see options")
+
+    config = ScoreConfig(args.prior_reviews, args.price_exponent, args.min_reviews)
+    restaurants = yelp_open.load_restaurants(args.file, args.city, args.state)
+    label = "%s, %s" % (args.city, args.state) if args.state else args.city
+    print("Loaded %d open restaurants in %s" % (len(restaurants), label))
+    out = args.out or ROOT / "data" / ("yelp-open-%s.geojson" % _slug(label))
+    _write(score_restaurants(restaurants, config), out, label, "yelp-open-dataset", config)
+
+
 def cmd_demo(args: argparse.Namespace) -> None:
     from cartograph.demo import demo_restaurants
 
@@ -62,8 +83,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="cartograph")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    def add_scoring_args(p: argparse.ArgumentParser) -> None:
-        p.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    def add_scoring_args(p: argparse.ArgumentParser, default_out: Optional[Path] = DEFAULT_OUT) -> None:
+        p.add_argument("--out", type=Path, default=default_out)
         p.add_argument("--prior-reviews", type=int, default=50, help="Bayesian prior strength (default 50)")
         p.add_argument("--price-exponent", type=float, default=0.5, help="Cost penalty, 0 ignores price (default 0.5)")
         p.add_argument("--min-reviews", type=int, default=5)
@@ -74,6 +95,20 @@ def main() -> None:
     p.add_argument("--step-km", type=float, default=2.0)
     add_scoring_args(p)
     p.set_defaults(func=cmd_restaurants)
+
+    p = sub.add_parser("yelp-open", help="Score restaurants from the downloaded Yelp Open Dataset")
+    p.add_argument(
+        "--file",
+        type=Path,
+        default=ROOT / "data" / "yelp-open" / "yelp_academic_dataset_business.json",
+        help="Path to yelp_academic_dataset_business.json",
+    )
+    p.add_argument("--city")
+    p.add_argument("--state")
+    p.add_argument("--list-cities", action="store_true", help="Show the cities with the most restaurants")
+    # Written under data/ (git-ignored) by default until the dataset licence is confirmed for publishing.
+    add_scoring_args(p, default_out=None)
+    p.set_defaults(func=cmd_yelp_open)
 
     p = sub.add_parser("demo", help="Write synthetic demo data so the map works without an API key")
     add_scoring_args(p)
