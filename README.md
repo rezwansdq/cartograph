@@ -6,7 +6,21 @@ Collect place data from the web and turn it into maps.
 
 ## Maps
 
-### Restaurant value
+### City food map
+
+Every restaurant, cafe and fast food spot that OpenStreetMap has for London, Toronto,
+Ottawa, Hamilton, Kitchener-Waterloo, Montréal, Vancouver and Calgary. Colour by type
+or chain vs independent, filter by cuisine or late-night hours, and compare how
+chain-heavy each city is. Cities live in `cartograph/cities.py`.
+
+```bash
+cartograph osm-food              # all cities
+cartograph osm-food --city london
+```
+
+Data © OpenStreetMap contributors, ODbL.
+
+### Restaurant value (demo data)
 
 Which restaurants give you the most for your money? Each place gets a 0 to 100
 value score from its star rating and its price level.

@@ -70,6 +70,48 @@ def cmd_yelp_open(args: argparse.Namespace) -> None:
     _write(score_restaurants(restaurants, config), out, label, "yelp-open-dataset", config)
 
 
+def cmd_osm_food(args: argparse.Namespace) -> None:
+    import json
+    import time
+    from collections import Counter
+
+    from cartograph.cities import CITIES, by_slug
+    from cartograph.sources import osm
+
+    out_dir = args.out_dir
+    index_path = out_dir / "cities.json"
+    index = {c["slug"]: c for c in json.loads(index_path.read_text())} if index_path.exists() else {}
+    targets = CITIES if args.city == "all" else [by_slug(args.city)]
+
+    for i, city in enumerate(targets):
+        if i:
+            time.sleep(10)  # be polite to the public Overpass server
+        rows = osm.mark_chains(osm.parse_places(osm.fetch_elements(city["wikidata"])))
+        lats = sorted(r["lat"] for r in rows)
+        lons = sorted(r["lon"] for r in rows)
+        q = lambda xs, t: xs[int(t * (len(xs) - 1))]
+        chains = sum(r["chain"] for r in rows)
+        summary = {
+            "slug": city["slug"],
+            "name": city["name"],
+            "region": city["region"],
+            "count": len(rows),
+            "chains": chains,
+            "types": dict(Counter(r["type"] for r in rows)),
+            "top_cuisines": Counter(c for r in rows for c in r["cuisines"]).most_common(12),
+            "late_known": sum(r["late"] is not None for r in rows),
+            "late": sum(bool(r["late"]) for r in rows),
+            "bounds": [[q(lons, 0.02), q(lats, 0.02)], [q(lons, 0.98), q(lats, 0.98)]],
+            "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        }
+        write_geojson(out_dir / ("%s.geojson" % city["slug"]), rows, {"attribution": "© OpenStreetMap contributors (ODbL)"})
+        index[city["slug"]] = summary
+        print("%-20s %5d places, %d chains" % (city["name"], len(rows), chains))
+
+    ordered = [index[c["slug"]] for c in CITIES if c["slug"] in index]
+    index_path.write_text(json.dumps(ordered, ensure_ascii=False, indent=1))
+
+
 def cmd_demo(args: argparse.Namespace) -> None:
     from cartograph.demo import demo_restaurants
 
@@ -109,6 +151,11 @@ def main() -> None:
     # Written under data/ (git-ignored) by default until the dataset licence is confirmed for publishing.
     add_scoring_args(p, default_out=None)
     p.set_defaults(func=cmd_yelp_open)
+
+    p = sub.add_parser("osm-food", help="Fetch restaurants, cafes and fast food for a city from OpenStreetMap")
+    p.add_argument("--city", default="all", help="City slug from cartograph/cities.py, or 'all' (default)")
+    p.add_argument("--out-dir", type=Path, default=ROOT / "site" / "data" / "food")
+    p.set_defaults(func=cmd_osm_food)
 
     p = sub.add_parser("demo", help="Write synthetic demo data so the map works without an API key")
     add_scoring_args(p)

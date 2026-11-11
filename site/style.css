@@ -35,6 +35,8 @@ a { color: var(--accent); }
 .card h2 { font-size: 1.05rem; margin: 0 0 6px; }
 .card p { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.4; }
 .card.soon { opacity: .55; pointer-events: none; }
+.tag { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; vertical-align: middle; margin-left: 4px; }
 
 /* Map pages */
 .map-page { display: flex; height: 100%; }

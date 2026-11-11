@@ -1,0 +1,602 @@
+[
+ {
+  "slug": "london",
+  "name": "London",
+  "region": "ON",
+  "count": 848,
+  "chains": 389,
+  "types": {
+   "Fast food": 347,
+   "Cafe": 138,
+   "Restaurant": 363
+  },
+  "top_cuisines": [
+   [
+    "Pizza",
+    101
+   ],
+   [
+    "Coffee shop",
+    88
+   ],
+   [
+    "Burger",
+    82
+   ],
+   [
+    "Sandwich",
+    66
+   ],
+   [
+    "Chicken",
+    31
+   ],
+   [
+    "American",
+    27
+   ],
+   [
+    "Chinese",
+    27
+   ],
+   [
+    "Mexican",
+    24
+   ],
+   [
+    "Italian",
+    19
+   ],
+   [
+    "Sushi",
+    19
+   ],
+   [
+    "Indian",
+    18
+   ],
+   [
+    "Bubble tea",
+    14
+   ]
+  ],
+  "late_known": 150,
+  "late": 67,
+  "bounds": [
+   [
+    -81.334192,
+    42.926176
+   ],
+   [
+    -81.173836,
+    43.034486
+   ]
+  ],
+  "generated_at": "2026-11-11T03:39:32+00:00"
+ },
+ {
+  "slug": "toronto",
+  "name": "Toronto",
+  "region": "ON",
+  "count": 8848,
+  "chains": 3053,
+  "types": {
+   "Fast food": 2841,
+   "Cafe": 1738,
+   "Restaurant": 4269
+  },
+  "top_cuisines": [
+   [
+    "Coffee shop",
+    852
+   ],
+   [
+    "Pizza",
+    619
+   ],
+   [
+    "Burger",
+    444
+   ],
+   [
+    "Sandwich",
+    339
+   ],
+   [
+    "Chinese",
+    325
+   ],
+   [
+    "Chicken",
+    312
+   ],
+   [
+    "Indian",
+    235
+   ],
+   [
+    "Japanese",
+    217
+   ],
+   [
+    "Sushi",
+    205
+   ],
+   [
+    "Mexican",
+    196
+   ],
+   [
+    "Bubble tea",
+    164
+   ],
+   [
+    "Italian",
+    162
+   ]
+  ],
+  "late_known": 2051,
+  "late": 958,
+  "bounds": [
+   [
+    -79.583849,
+    43.614412
+   ],
+   [
+    -79.22037,
+    43.805213
+   ]
+  ],
+  "generated_at": "2026-11-11T03:40:27+00:00"
+ },
+ {
+  "slug": "ottawa",
+  "name": "Ottawa",
+  "region": "ON",
+  "count": 2870,
+  "chains": 1039,
+  "types": {
+   "Restaurant": 1228,
+   "Fast food": 1144,
+   "Cafe": 498
+  },
+  "top_cuisines": [
+   [
+    "Pizza",
+    297
+   ],
+   [
+    "Coffee shop",
+    268
+   ],
+   [
+    "Burger",
+    181
+   ],
+   [
+    "Sandwich",
+    160
+   ],
+   [
+    "Chinese",
+    117
+   ],
+   [
+    "Indian",
+    97
+   ],
+   [
+    "Mexican",
+    89
+   ],
+   [
+    "Chicken",
+    77
+   ],
+   [
+    "Kebab",
+    64
+   ],
+   [
+    "Italian",
+    61
+   ],
+   [
+    "Thai",
+    60
+   ],
+   [
+    "Vietnamese",
+    58
+   ]
+  ],
+  "late_known": 816,
+  "late": 323,
+  "bounds": [
+   [
+    -75.933804,
+    45.233933
+   ],
+   [
+    -75.486874,
+    45.47242
+   ]
+  ],
+  "generated_at": "2026-11-11T03:41:21+00:00"
+ },
+ {
+  "slug": "hamilton",
+  "name": "Hamilton",
+  "region": "ON",
+  "count": 1229,
+  "chains": 477,
+  "types": {
+   "Cafe": 216,
+   "Fast food": 443,
+   "Restaurant": 570
+  },
+  "top_cuisines": [
+   [
+    "Pizza",
+    140
+   ],
+   [
+    "Coffee shop",
+    137
+   ],
+   [
+    "Burger",
+    98
+   ],
+   [
+    "Sandwich",
+    86
+   ],
+   [
+    "Chinese",
+    53
+   ],
+   [
+    "Chicken",
+    50
+   ],
+   [
+    "Italian",
+    34
+   ],
+   [
+    "Indian",
+    33
+   ],
+   [
+    "American",
+    28
+   ],
+   [
+    "Mexican",
+    27
+   ],
+   [
+    "Vietnamese",
+    23
+   ],
+   [
+    "Ice cream",
+    22
+   ]
+  ],
+  "late_known": 346,
+  "late": 166,
+  "bounds": [
+   [
+    -80.02154,
+    43.174679
+   ],
+   [
+    -79.66865,
+    43.333607
+   ]
+  ],
+  "generated_at": "2026-11-11T03:42:16+00:00"
+ },
+ {
+  "slug": "kitchener-waterloo",
+  "name": "Kitchener-Waterloo",
+  "region": "ON",
+  "count": 996,
+  "chains": 427,
+  "types": {
+   "Restaurant": 423,
+   "Fast food": 391,
+   "Cafe": 182
+  },
+  "top_cuisines": [
+   [
+    "Pizza",
+    120
+   ],
+   [
+    "Coffee shop",
+    94
+   ],
+   [
+    "Burger",
+    85
+   ],
+   [
+    "Sandwich",
+    64
+   ],
+   [
+    "Indian",
+    54
+   ],
+   [
+    "Chicken",
+    46
+   ],
+   [
+    "Chinese",
+    40
+   ],
+   [
+    "Mexican",
+    34
+   ],
+   [
+    "Shawarma",
+    25
+   ],
+   [
+    "Japanese",
+    23
+   ],
+   [
+    "Bubble tea",
+    19
+   ],
+   [
+    "Mediterranean",
+    19
+   ]
+  ],
+  "late_known": 450,
+  "late": 202,
+  "bounds": [
+   [
+    -80.574665,
+    43.39427
+   ],
+   [
+    -80.396505,
+    43.50317
+   ]
+  ],
+  "generated_at": "2026-11-11T03:43:42+00:00"
+ },
+ {
+  "slug": "montreal",
+  "name": "Montréal",
+  "region": "QC",
+  "count": 4328,
+  "chains": 893,
+  "types": {
+   "Restaurant": 2690,
+   "Cafe": 919,
+   "Fast food": 719
+  },
+  "top_cuisines": [
+   [
+    "Pizza",
+    296
+   ],
+   [
+    "Coffee shop",
+    294
+   ],
+   [
+    "Burger",
+    255
+   ],
+   [
+    "Sandwich",
+    232
+   ],
+   [
+    "Sushi",
+    169
+   ],
+   [
+    "Italian",
+    130
+   ],
+   [
+    "Vietnamese",
+    113
+   ],
+   [
+    "Chicken",
+    109
+   ],
+   [
+    "Chinese",
+    106
+   ],
+   [
+    "Indian",
+    104
+   ],
+   [
+    "Japanese",
+    91
+   ],
+   [
+    "Mexican",
+    88
+   ]
+  ],
+  "late_known": 1574,
+  "late": 644,
+  "bounds": [
+   [
+    -73.806461,
+    45.443209
+   ],
+   [
+    -73.541683,
+    45.591438
+   ]
+  ],
+  "generated_at": "2026-11-11T03:44:21+00:00"
+ },
+ {
+  "slug": "vancouver",
+  "name": "Vancouver",
+  "region": "BC",
+  "count": 2829,
+  "chains": 637,
+  "types": {
+   "Restaurant": 1660,
+   "Cafe": 687,
+   "Fast food": 482
+  },
+  "top_cuisines": [
+   [
+    "Coffee shop",
+    232
+   ],
+   [
+    "Pizza",
+    158
+   ],
+   [
+    "Chinese",
+    148
+   ],
+   [
+    "Japanese",
+    145
+   ],
+   [
+    "Sushi",
+    127
+   ],
+   [
+    "Vietnamese",
+    124
+   ],
+   [
+    "Burger",
+    113
+   ],
+   [
+    "Sandwich",
+    100
+   ],
+   [
+    "Mexican",
+    79
+   ],
+   [
+    "Indian",
+    78
+   ],
+   [
+    "Italian",
+    72
+   ],
+   [
+    "Chicken",
+    54
+   ]
+  ],
+  "late_known": 1954,
+  "late": 736,
+  "bounds": [
+   [
+    -123.184916,
+    49.210512
+   ],
+   [
+    -123.031133,
+    49.290678
+   ]
+  ],
+  "generated_at": "2026-11-11T03:45:01+00:00"
+ },
+ {
+  "slug": "calgary",
+  "name": "Calgary",
+  "region": "AB",
+  "count": 2919,
+  "chains": 1200,
+  "types": {
+   "Restaurant": 1482,
+   "Fast food": 911,
+   "Cafe": 526
+  },
+  "top_cuisines": [
+   [
+    "Pizza",
+    287
+   ],
+   [
+    "Coffee shop",
+    281
+   ],
+   [
+    "Burger",
+    231
+   ],
+   [
+    "Sandwich",
+    158
+   ],
+   [
+    "Chinese",
+    120
+   ],
+   [
+    "Vietnamese",
+    113
+   ],
+   [
+    "Chicken",
+    104
+   ],
+   [
+    "Japanese",
+    92
+   ],
+   [
+    "Indian",
+    77
+   ],
+   [
+    "Mexican",
+    70
+   ],
+   [
+    "Italian",
+    55
+   ],
+   [
+    "Ice cream",
+    54
+   ]
+  ],
+  "late_known": 1211,
+  "late": 481,
+  "bounds": [
+   [
+    -114.211236,
+    50.88072
+   ],
+   [
+    -113.942018,
+    51.16235
+   ]
+  ],
+  "generated_at": "2026-11-11T03:45:48+00:00"
+ }
+]
