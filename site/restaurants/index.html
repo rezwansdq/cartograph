@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Restaurant Value Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="map-page">
+    <aside class="sidebar">
+      <a class="back" href="../">&larr; All maps</a>
+      <h1>Restaurant value</h1>
+      <p class="sub" id="subtitle">Loading...</p>
+      <div class="banner" id="demo-banner" hidden>
+        Demo data: these restaurants are randomly generated. Run
+        <code>cartograph restaurants</code> with a Yelp API key for real ones.
+      </div>
+
+      <h3>Value score</h3>
+      <div class="legend-bar"></div>
+      <div class="legend-labels"><span>0 worst</span><span>50</span><span>100 best</span></div>
+
+      <h3>Filters</h3>
+      <div class="controls">
+        <div class="prices" id="prices"></div>
+        <label for="min-reviews">Min reviews: <strong id="min-reviews-val">0</strong></label>
+        <input type="range" id="min-reviews" min="0" max="500" step="5" value="0">
+      </div>
+
+      <h3>Top 15</h3>
+      <ol class="top" id="top"></ol>
+    </aside>
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script>
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/' + (dark ? 'dark' : 'positron'),
+      center: [-81.2453, 42.9849],
+      zoom: 11.5,
+    });
+    map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    const state = { prices: new Set([1, 2, 3, 4]), minReviews: 0 };
+    let data;
+
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    function filterExpr() {
+      return ['all',
+        ['in', ['get', 'price_level'], ['literal', [...state.prices]]],
+        ['>=', ['get', 'review_count'], state.minReviews],
+      ];
+    }
+
+    function visible() {
+      return data.features
+        .filter(f => state.prices.has(f.properties.price_level) && f.properties.review_count >= state.minReviews)
+        .sort((a, b) => b.properties.raw_value - a.properties.raw_value);
+    }
+
+    function renderTop() {
+      const list = document.getElementById('top');
+      list.innerHTML = '';
+      visible().slice(0, 15).forEach(f => {
+        const p = f.properties;
+        const li = document.createElement('li');
+        li.innerHTML = `${esc(p.name)}<div class="meta">${p.score} &middot; ${p.rating}&#9733; &middot; ${p.review_count} reviews &middot; ${'$'.repeat(p.price_level)}</div>`;
+        li.onclick = () => map.flyTo({ center: f.geometry.coordinates, zoom: 15 });
+        list.appendChild(li);
+      });
+    }
+
+    function applyFilters() {
+      if (map.getLayer('restaurants')) map.setFilter('restaurants', filterExpr());
+      renderTop();
+    }
+
+    const pricesEl = document.getElementById('prices');
+    [1, 2, 3, 4].forEach(lvl => {
+      const label = document.createElement('label');
+      label.innerHTML = `<input type="checkbox" checked value="${lvl}"> ${'$'.repeat(lvl)}`;
+      label.querySelector('input').onchange = e => {
+        e.target.checked ? state.prices.add(lvl) : state.prices.delete(lvl);
+        applyFilters();
+      };
+      pricesEl.appendChild(label);
+    });
+    const slider = document.getElementById('min-reviews');
+    slider.oninput = () => {
+      state.minReviews = +slider.value;
+      document.getElementById('min-reviews-val').textContent = slider.value;
+      applyFilters();
+    };
+
+    map.on('load', async () => {
+      data = await fetch('../data/restaurants.geojson').then(r => r.json());
+      const meta = data.meta || {};
+      document.getElementById('subtitle').textContent = `${meta.city || ''} · ${data.features.length} places`;
+      document.getElementById('demo-banner').hidden = !meta.demo;
+
+      map.addSource('restaurants', { type: 'geojson', data });
+      map.addLayer({
+        id: 'restaurants',
+        type: 'circle',
+        source: 'restaurants',
+        paint: {
+          'circle-color': ['interpolate', ['linear'], ['get', 'score'],
+            0, '#440154', 25, '#3b528b', 50, '#21918c', 75, '#5ec962', 100, '#fde725'],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'],
+            10, ['interpolate', ['linear'], ['get', 'review_count'], 0, 2, 500, 6],
+            16, ['interpolate', ['linear'], ['get', 'review_count'], 0, 5, 500, 14]],
+          'circle-opacity': 0.85,
+          'circle-stroke-width': 0.5,
+          'circle-stroke-color': dark ? '#000' : '#fff',
+        },
+      });
+      // Draw the best places on top.
+      map.setLayoutProperty('restaurants', 'circle-sort-key', ['get', 'score']);
+
+      map.on('click', 'restaurants', e => {
+        const p = e.features[0].properties;
+        const link = p.url ? `<br><a href="${esc(p.url)}" target="_blank" rel="noopener">View listing</a>` : '';
+        new maplibregl.Popup()
+          .setLngLat(e.features[0].geometry.coordinates)
+          .setHTML(`<strong>${esc(p.name)}</strong><br>Score ${p.score} / 100<br>${p.rating}&#9733; (${p.review_count} reviews, adjusted ${p.adjusted_rating})<br>${'$'.repeat(p.price_level)}${link}`)
+          .addTo(map);
+      });
+      map.on('mouseenter', 'restaurants', () => map.getCanvas().style.cursor = 'pointer');
+      map.on('mouseleave', 'restaurants', () => map.getCanvas().style.cursor = '');
+
+      if (data.features.length) {
+        const b = new maplibregl.LngLatBounds();
+        data.features.forEach(f => b.extend(f.geometry.coordinates));
+        map.fitBounds(b, { padding: 40, duration: 0 });
+      }
+      renderTop();
+    });
+  </script>
+</body>
+</html>
