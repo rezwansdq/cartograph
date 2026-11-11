@@ -7,6 +7,7 @@ Each city: run the patched google-maps-scraper over a 2 km grid, then
 which usually means Google has started blocking us.
 """
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -51,13 +52,25 @@ def scrape(slug: str, bbox: str) -> int:
     (city_dir / "query.txt").write_text("restaurants\n")
     before = len(list(raw.glob("raw-*.json")))
     env = dict(os.environ, GMAPS_DUMP_DIR=str(raw))
-    with open(city_dir / ("run-%d.log" % int(time.time())), "w") as log:
-        subprocess.run(
+    log_path = city_dir / ("run-%d.log" % int(time.time()))
+    with open(log_path, "w") as log:
+        proc = subprocess.Popen(
             [str(SCRAPER), "-input", str(city_dir / "query.txt"), "-results", str(city_dir / "results.json"),
              "-json", "-grid-bbox", bbox, "-grid-cell", "2.0", "-zoom", "15", "-depth", "2", "-c", "3",
              "-exit-on-inactivity", "4m"],
-            env=env, stdout=log, stderr=subprocess.STDOUT, timeout=4 * 3600,
+            env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True,
         )
+        # The scraper sometimes logs "scrapemate exited" and then hangs on browser shutdown.
+        deadline, done_at = time.time() + 4 * 3600, None
+        while proc.poll() is None and time.time() < deadline:
+            time.sleep(15)
+            if done_at is None and "scrapemate exited" in log_path.read_text(errors="ignore")[-2000:]:
+                done_at = time.time()
+            if done_at and time.time() - done_at > 60:
+                break
+        if proc.poll() is None:
+            os.killpg(proc.pid, signal.SIGKILL)
+            proc.wait()
     return len(list(raw.glob("raw-*.json"))) - before
 
 

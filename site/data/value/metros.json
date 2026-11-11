@@ -8,6 +8,23 @@
  },
  "metros": [
   {
+   "slug": "toronto",
+   "name": "Toronto",
+   "count": 2496,
+   "bounds": [
+    [
+     -79.64025,
+     43.59687
+    ],
+    [
+     -79.15859,
+     43.86286
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
    "slug": "edmonton",
    "name": "Edmonton",
    "country": "CA",
