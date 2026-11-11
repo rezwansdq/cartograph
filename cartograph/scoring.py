@@ -11,11 +11,12 @@ Two steps:
    where n is the review count and m (`prior_reviews`) is how many "virtual"
    average reviews every place starts with.
 
-2. Divide by cost. Price level is 1 ($) to 4 ($$$$). The exponent controls how
-   hard cost is penalized: 0 ignores price, 1 makes a $$ place need double the
-   rating of a $ place to tie.
+2. Subtract a quality floor, then divide by cost. Stars at or below the floor
+   (3.0 by default) count for nothing, so a cheap but mediocre place can't win
+   on price alone. Price level is 1 ($) to 4 ($$$$); the exponent controls how
+   hard cost is penalized (0 ignores price).
 
-       raw_value = adjusted / price_level ** price_exponent
+       raw_value = max(adjusted - quality_floor, 0) / price_level ** price_exponent
 
 The raw value is then turned into a 0 to 100 percentile within the dataset, so
 a score of 90 means "better value than 90% of places in this city".
@@ -34,6 +35,7 @@ class ScoreConfig:
     prior_reviews: int = 50
     price_exponent: float = 0.5
     min_reviews: int = 5
+    quality_floor: float = 3.0
 
 
 def bayesian_rating(rating: float, n: int, prior_mean: float, m: int) -> float:
@@ -93,7 +95,7 @@ def score_restaurants(
     rows = []
     for r in eligible:
         adjusted = bayesian_rating(r.rating, r.review_count, prior_mean, config.prior_reviews)
-        raw_value = adjusted / (r.price_level ** config.price_exponent)
+        raw_value = max(adjusted - config.quality_floor, 0.0) / (r.price_level ** config.price_exponent)
         row = asdict(r)
         row["adjusted_rating"] = round(adjusted, 3)
         row["raw_value"] = raw_value

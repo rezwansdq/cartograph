@@ -12,7 +12,7 @@ from cartograph.geo import geocode, write_geojson
 from cartograph.scoring import ScoreConfig, score_restaurants
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_OUT = ROOT / "site" / "data" / "restaurants.geojson"
+DEFAULT_OUT = ROOT / "data" / "restaurants.geojson"
 LONDON_ON = (42.9849, -81.2453)
 
 
@@ -68,6 +68,41 @@ def cmd_yelp_open(args: argparse.Namespace) -> None:
     print("Loaded %d open restaurants in %s" % (len(restaurants), label))
     out = args.out or ROOT / "data" / ("yelp-open-%s.geojson" % _slug(label))
     _write(score_restaurants(restaurants, config), out, label, "yelp-open-dataset", config)
+
+
+def cmd_yelp_value(args: argparse.Namespace) -> None:
+    import json
+
+    from cartograph.sources import yelp_open
+
+    if not args.file.exists():
+        raise SystemExit("Dataset file not found: %s" % args.file)
+    config = ScoreConfig(args.prior_reviews, args.price_exponent, args.min_reviews)
+    grouped = yelp_open.restaurants_by_metro(args.file)
+    keep = ("name", "rating", "review_count", "price_level", "adjusted_rating", "raw_value", "score", "address")
+    index = []
+    for metro in yelp_open.METROS:
+        scored = score_restaurants(grouped[metro["slug"]], config)
+        rows = []
+        for s in scored:
+            row = {k: s[k] for k in keep}
+            row["lat"], row["lon"] = round(s["lat"], 5), round(s["lon"], 5)
+            row["categories"] = s["categories"][:3]
+            rows.append(row)
+        lats = sorted(r["lat"] for r in rows)
+        lons = sorted(r["lon"] for r in rows)
+        q = lambda xs, t: xs[int(t * (len(xs) - 1))]
+        write_geojson(args.out_dir / ("%s.geojson" % metro["slug"]), rows)
+        index.append({
+            "slug": metro["slug"],
+            "name": metro["name"],
+            "count": len(rows),
+            "bounds": [[q(lons, 0.02), q(lats, 0.02)], [q(lons, 0.98), q(lats, 0.98)]],
+        })
+        print("%-14s %5d scored" % (metro["name"], len(rows)))
+    index.sort(key=lambda m: -m["count"])
+    meta = {"source": "Yelp Open Dataset", "config": vars(config), "metros": index}
+    (args.out_dir / "metros.json").write_text(json.dumps(meta, indent=1))
 
 
 def cmd_osm_food(args: argparse.Namespace) -> None:
@@ -151,6 +186,18 @@ def main() -> None:
     # Written under data/ (git-ignored) by default until the dataset licence is confirmed for publishing.
     add_scoring_args(p, default_out=None)
     p.set_defaults(func=cmd_yelp_open)
+
+    p = sub.add_parser("yelp-value", help="Score every Yelp Open Dataset metro and write the site's value map data")
+    p.add_argument(
+        "--file",
+        type=Path,
+        default=ROOT / "data" / "yelp-open" / "yelp_academic_dataset_business.json",
+    )
+    p.add_argument("--out-dir", type=Path, default=ROOT / "site" / "data" / "value")
+    p.add_argument("--prior-reviews", type=int, default=50)
+    p.add_argument("--price-exponent", type=float, default=0.5)
+    p.add_argument("--min-reviews", type=int, default=5)
+    p.set_defaults(func=cmd_yelp_value)
 
     p = sub.add_parser("osm-food", help="Fetch restaurants, cafes and fast food for a city from OpenStreetMap")
     p.add_argument("--city", default="all", help="City slug from cartograph/cities.py, or 'all' (default)")

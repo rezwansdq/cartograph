@@ -43,6 +43,36 @@ def _norm(text: str) -> str:
     return " ".join(text.lower().split())
 
 
+# The dataset covers a handful of metro areas; each state maps to one of them.
+METROS = [
+    {"slug": "philadelphia", "name": "Philadelphia", "states": ["PA", "NJ", "DE"]},
+    {"slug": "tampa-bay", "name": "Tampa Bay", "states": ["FL"]},
+    {"slug": "nashville", "name": "Nashville", "states": ["TN"]},
+    {"slug": "indianapolis", "name": "Indianapolis", "states": ["IN"]},
+    {"slug": "st-louis", "name": "St. Louis", "states": ["MO", "IL"]},
+    {"slug": "new-orleans", "name": "New Orleans", "states": ["LA"]},
+    {"slug": "tucson", "name": "Tucson", "states": ["AZ"]},
+    {"slug": "edmonton", "name": "Edmonton", "states": ["AB"]},
+    {"slug": "reno", "name": "Reno", "states": ["NV"]},
+    {"slug": "boise", "name": "Boise", "states": ["ID"]},
+    {"slug": "santa-barbara", "name": "Santa Barbara", "states": ["CA"]},
+]
+METRO_BY_STATE = {s: m["slug"] for m in METROS for s in m["states"]}
+
+
+def restaurants_by_metro(path: Path) -> Dict[str, List[Restaurant]]:
+    """Open restaurants grouped by metro slug."""
+    out: Dict[str, List[Restaurant]] = {m["slug"]: [] for m in METROS}
+    for b in iter_businesses(path):
+        slug = METRO_BY_STATE.get((b.get("state") or "").strip())
+        if not slug or not is_open_restaurant(b):
+            continue
+        r = parse_business(b)
+        if r is not None:
+            out[slug].append(r)
+    return out
+
+
 def iter_businesses(path: Path) -> Iterator[Dict]:
     with open(path, encoding="utf-8") as f:
         for line in f:

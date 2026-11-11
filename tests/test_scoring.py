@@ -56,3 +56,8 @@ def test_parse_yelp_business():
     assert rest.categories == ["Thai"]
     assert rest.address == "1 Main St, London, ON"
     assert parse_business({"id": "y", "coordinates": {}}) is None
+
+
+def test_quality_floor_stops_cheap_mediocre_places_winning():
+    rows = score_restaurants([r("cheap-meh", 3.0, 300, 1), r("good-mid", 4.5, 300, 2)])
+    assert rows[0]["id"] == "good-mid"

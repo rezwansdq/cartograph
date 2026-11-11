@@ -20,16 +20,20 @@ cartograph osm-food --city london
 
 Data © OpenStreetMap contributors, ODbL.
 
-### Restaurant value (demo data)
+### Restaurant value
 
 Which restaurants give you the most for your money? Each place gets a 0 to 100
-value score from its star rating and its price level.
+value score from its star rating and its price level. Covers the 11 metro areas in the
+[Yelp Open Dataset](https://www.yelp.com/dataset) (Philadelphia, Tampa Bay, Nashville,
+Indianapolis, St. Louis, New Orleans, Tucson, Edmonton, Reno, Boise, Santa Barbara).
 
 1. **Adjust the rating for review count** (Bayesian average). A 5.0 with three
    reviews gets pulled toward the city average; a 4.7 with 900 reviews barely moves.
    `adjusted = (n * rating + m * city_mean) / (n + m)`, with `m = 50` by default.
-2. **Divide by cost.** `value = adjusted / price_level ** 0.5`. The exponent sets
-   how much cost matters: `0` ignores price, `1` is a strict stars-per-dollar-sign ratio.
+2. **Subtract a quality floor, then divide by cost.**
+   `value = max(adjusted - 3, 0) / price_level ** 0.5`. Stars at or below 3 count for
+   nothing, so a cheap but mediocre place can't win on price alone. The exponent sets
+   how much cost matters: `0` ignores price, `1` is a strict per-dollar-sign ratio.
 3. **Rank within the city.** A score of 90 means better value than 90% of places.
 
 Both knobs are CLI flags (`--prior-reviews`, `--price-exponent`), so it's easy to try variations.
@@ -44,31 +48,22 @@ pip install -e ".[dev]"
 
 ## Usage
 
-Generate demo data (randomly generated, no API key needed):
+Build the value map data from the Yelp Open Dataset. Download it from
+https://www.yelp.com/dataset, then put `yelp_academic_dataset_business.json` in
+`data/yelp-open/` (git-ignored):
 
 ```bash
-cartograph demo
-```
-
-Fetch real restaurants. Needs a Yelp API key in `.env` (copy `.env.example`):
-
-```bash
-cartograph restaurants --city "London, Ontario, Canada" --radius-km 8
-```
-
-Both write `site/data/restaurants.geojson`.
-
-Use the free [Yelp Open Dataset](https://www.yelp.com/dataset) instead of the API.
-Download it, then put `yelp_academic_dataset_business.json` in `data/yelp-open/`:
-
-```bash
-cartograph yelp-open --list-cities
+cartograph yelp-value                     # writes site/data/value/
+cartograph yelp-open --list-cities        # explore one city at a time
 cartograph yelp-open --city Philadelphia --state PA
 ```
 
-This writes to `data/` (git-ignored), because the dataset is licensed for personal,
-educational and academic use. Read its Dataset User Agreement before publishing a map
-built from it.
+Other sources the scorer can use:
+
+```bash
+cartograph restaurants --city "London, Ontario, Canada"   # Yelp Fusion API, needs YELP_API_KEY in .env
+cartograph demo                                           # random demo data
+```
 
 Preview the site locally:
 
