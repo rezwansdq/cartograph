@@ -25,6 +25,40 @@
    "country": "CA"
   },
   {
+   "slug": "montreal",
+   "name": "Montréal",
+   "count": 1969,
+   "bounds": [
+    [
+     -73.94747,
+     45.41111
+    ],
+    [
+     -73.4754,
+     45.6942
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "calgary",
+   "name": "Calgary",
+   "count": 1479,
+   "bounds": [
+    [
+     -114.22217,
+     50.86834
+    ],
+    [
+     -113.93234,
+     51.19604
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
    "slug": "edmonton",
    "name": "Edmonton",
    "country": "CA",
@@ -59,6 +93,159 @@
    "country": "CA"
   },
   {
+   "slug": "ottawa",
+   "name": "Ottawa",
+   "count": 1104,
+   "bounds": [
+    [
+     -75.9322,
+     45.26472
+    ],
+    [
+     -75.5559,
+     45.50265
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "brampton",
+   "name": "Brampton",
+   "count": 819,
+   "bounds": [
+    [
+     -79.8959,
+     43.5976
+    ],
+    [
+     -79.62904,
+     43.85803
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "winnipeg",
+   "name": "Winnipeg",
+   "count": 771,
+   "bounds": [
+    [
+     -97.31346,
+     49.7813
+    ],
+    [
+     -97.00428,
+     49.96921
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "vaughan",
+   "name": "Vaughan",
+   "count": 729,
+   "bounds": [
+    [
+     -79.71859,
+     43.74855
+    ],
+    [
+     -79.41107,
+     43.90845
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "vancouver",
+   "name": "Vancouver",
+   "count": 603,
+   "bounds": [
+    [
+     -123.24284,
+     49.19687
+    ],
+    [
+     -123.00394,
+     49.32843
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "quebec-city",
+   "name": "Québec City",
+   "count": 583,
+   "bounds": [
+    [
+     -71.42994,
+     46.72857
+    ],
+    [
+     -71.15638,
+     46.88895
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "markham",
+   "name": "Markham",
+   "count": 552,
+   "bounds": [
+    [
+     -79.43842,
+     43.79844
+    ],
+    [
+     -79.19955,
+     43.96927
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "windsor",
+   "name": "Windsor",
+   "count": 478,
+   "bounds": [
+    [
+     -83.12967,
+     42.23437
+    ],
+    [
+     -82.89167,
+     42.35754
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "hamilton",
+   "name": "Hamilton",
+   "count": 447,
+   "bounds": [
+    [
+     -80.02246,
+     43.18233
+    ],
+    [
+     -79.72016,
+     43.31127
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
    "slug": "london",
    "name": "London",
    "count": 432,
@@ -70,6 +257,91 @@
     [
      -81.15424,
      43.04565
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "kitchener-waterloo",
+   "name": "Kitchener-Waterloo",
+   "count": 382,
+   "bounds": [
+    [
+     -80.5932,
+     43.38192
+    ],
+    [
+     -80.382,
+     43.51573
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "oakville",
+   "name": "Oakville",
+   "count": 375,
+   "bounds": [
+    [
+     -79.81095,
+     43.36837
+    ],
+    [
+     -79.62288,
+     43.53721
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "halifax",
+   "name": "Halifax",
+   "count": 310,
+   "bounds": [
+    [
+     -63.71282,
+     44.60196
+    ],
+    [
+     -63.54506,
+     44.70975
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "burlington",
+   "name": "Burlington",
+   "count": 291,
+   "bounds": [
+    [
+     -79.91155,
+     43.30363
+    ],
+    [
+     -79.70577,
+     43.43735
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "victoria",
+   "name": "Victoria",
+   "count": 271,
+   "bounds": [
+    [
+     -123.42878,
+     48.41452
+    ],
+    [
+     -123.3022,
+     48.49724
     ]
    ],
    "source": "google",
