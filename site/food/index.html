@@ -275,6 +275,8 @@ map.on('load', async () => {
 
   const fromHash = location.hash.slice(1);
   selectCity(cities.some(c => c.slug === fromHash) ? fromHash : 'london');
+  addEventListener('hashchange', () => { const h = location.hash.slice(1);
+    if (h !== state.city && cities.some(c => c.slug === h)) selectCity(h); });
 });
 </script>
 </body>

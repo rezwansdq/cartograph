@@ -1,0 +1,24 @@
+diff --git a/gmaps/entry.go b/gmaps/entry.go
+index 2a2ea69..ca09dd9 100644
+--- a/gmaps/entry.go
++++ b/gmaps/entry.go
+@@ -7,6 +7,8 @@ import (
+ 	"log"
+ 	"math"
+ 	"net/url"
++	"os"
++	"path/filepath"
+ 	"regexp"
+ 	"runtime/debug"
+ 	"slices"
+@@ -368,6 +370,10 @@ func EntryFromJSON(raw []byte, reviewCountOnly ...bool) (entry Entry, err error)
+ 
+ 	onlyReviewCount := len(reviewCountOnly) == 1 && reviewCountOnly[0]
+ 
++	if dir := os.Getenv("GMAPS_DUMP_DIR"); dir != "" {
++		_ = os.WriteFile(filepath.Join(dir, fmt.Sprintf("raw-%d.json", time.Now().UnixNano())), raw, 0o644)
++	}
++
+ 	var jd []any
+ 	if err := json.Unmarshal(raw, &jd); err != nil {
+ 		return entry, err

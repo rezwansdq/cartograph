@@ -25,7 +25,7 @@ a score of 90 means "better value than 90% of places in this city".
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Optional
 
 from cartograph.models import Restaurant
 
@@ -36,6 +36,7 @@ class ScoreConfig:
     price_exponent: float = 0.5
     min_reviews: int = 5
     quality_floor: float = 3.0
+    dollars_per_level: float = 15.0
 
 
 def bayesian_rating(rating: float, n: int, prior_mean: float, m: int) -> float:
@@ -72,6 +73,19 @@ def _count_less_equal(ordered: List[float], v: float) -> int:
     return bisect.bisect_right(ordered, v)
 
 
+def cost_units(r: Restaurant, config: ScoreConfig) -> Optional[float]:
+    """How expensive a place is, on the $ (1) to $$$$ (4) scale.
+
+    A per-person spend (Google) is converted at `dollars_per_level`, so CA$15 or
+    less counts as 1 and CA$60 as 4. Otherwise the source's price level is used.
+    """
+    if r.price_per_person is not None and r.price_per_person > 0:
+        return max(1.0, r.price_per_person / config.dollars_per_level)
+    if r.price_level is not None and 1 <= r.price_level <= 4:
+        return float(r.price_level)
+    return None
+
+
 def score_restaurants(
     restaurants: Iterable[Restaurant], config: ScoreConfig = ScoreConfig()
 ) -> List[Dict]:
@@ -79,13 +93,7 @@ def score_restaurants(
 
     Returns dicts (restaurant fields plus score fields), best first.
     """
-    eligible = [
-        r
-        for r in restaurants
-        if r.price_level is not None
-        and 1 <= r.price_level <= 4
-        and r.review_count >= config.min_reviews
-    ]
+    eligible = [r for r in restaurants if cost_units(r, config) is not None and r.review_count >= config.min_reviews]
     if not eligible:
         return []
 
@@ -95,7 +103,7 @@ def score_restaurants(
     rows = []
     for r in eligible:
         adjusted = bayesian_rating(r.rating, r.review_count, prior_mean, config.prior_reviews)
-        raw_value = max(adjusted - config.quality_floor, 0.0) / (r.price_level ** config.price_exponent)
+        raw_value = max(adjusted - config.quality_floor, 0.0) / (cost_units(r, config) ** config.price_exponent)
         row = asdict(r)
         row["adjusted_rating"] = round(adjusted, 3)
         row["raw_value"] = raw_value

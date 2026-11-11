@@ -70,6 +70,67 @@ def cmd_yelp_open(args: argparse.Namespace) -> None:
     _write(score_restaurants(restaurants, config), out, label, "yelp-open-dataset", config)
 
 
+def _merge_metros(out_dir: Path, entries, config: ScoreConfig) -> None:
+    """Add or replace metros in site/data/value/metros.json, keyed by slug."""
+    import json
+
+    path = out_dir / "metros.json"
+    existing = json.loads(path.read_text())["metros"] if path.exists() else []
+    by_slug = {m["slug"]: m for m in existing}
+    for m in entries:
+        by_slug[m["slug"]] = m
+    metros = sorted(by_slug.values(), key=lambda m: (m.get("country") != "CA", -m["count"]))
+    path.write_text(json.dumps({"config": vars(config), "metros": metros}, ensure_ascii=False, indent=1))
+
+
+def _bounds(rows):
+    lats = sorted(r["lat"] for r in rows)
+    lons = sorted(r["lon"] for r in rows)
+    q = lambda xs, t: xs[int(t * (len(xs) - 1))]
+    return [[q(lons, 0.02), q(lats, 0.02)], [q(lons, 0.98), q(lats, 0.98)]]
+
+
+def cmd_gmaps_value(args: argparse.Namespace) -> None:
+    from cartograph.sources import gmaps
+
+    raw_dir = args.raw_dir or ROOT / "data" / "gmaps" / args.slug / "raw"
+    places = [p for p in gmaps.load_raw_dir(raw_dir) if gmaps.is_food_place(p.categories)]
+    if args.bbox:
+        s, w, n, e = [float(x) for x in args.bbox.split(",")]
+        places = [p for p in places if s <= p.lat <= n and w <= p.lon <= e]
+    with_reports = sum(p.price_reports > 0 for p in places)
+    gmaps.fill_missing_prices(places)
+    config = ScoreConfig(args.prior_reviews, args.price_exponent, args.min_reviews)
+    rows = []
+    for s_ in score_restaurants(places, config):
+        rows.append({
+            "name": s_["name"],
+            "lat": round(s_["lat"], 5),
+            "lon": round(s_["lon"], 5),
+            "rating": s_["rating"],
+            "review_count": s_["review_count"],
+            "price_per_person": round(s_["price_per_person"], 1),
+            "price_reports": s_["price_reports"],
+            "price_level": gmaps.price_level_for(s_["price_per_person"]),
+            "adjusted_rating": s_["adjusted_rating"],
+            "raw_value": s_["raw_value"],
+            "score": s_["score"],
+            "categories": s_["categories"][:3],
+            "address": s_["address"],
+        })
+    if not rows:
+        raise SystemExit("No scored places in %s" % raw_dir)
+    write_geojson(args.out_dir / ("%s.geojson" % args.slug), rows)
+    _merge_metros(args.out_dir, [{
+        "slug": args.slug, "name": args.name, "count": len(rows), "bounds": _bounds(rows),
+        "source": "google", "country": "CA",
+    }], config)
+    print("%s: %d places scored, %d had reviewer price reports" % (args.name, len(rows), with_reports))
+    for r in rows[:10]:
+        print("  %5.1f  %-35s %.1f stars, %d reviews, ~$%.0f pp (%d reports)" % (
+            r["score"], r["name"][:35], r["rating"], r["review_count"], r["price_per_person"], r["price_reports"]))
+
+
 def cmd_yelp_value(args: argparse.Namespace) -> None:
     import json
 
@@ -96,13 +157,14 @@ def cmd_yelp_value(args: argparse.Namespace) -> None:
         index.append({
             "slug": metro["slug"],
             "name": metro["name"],
+            "country": "CA" if metro["slug"] == "edmonton" else "US",
             "count": len(rows),
             "bounds": [[q(lons, 0.02), q(lats, 0.02)], [q(lons, 0.98), q(lats, 0.98)]],
         })
         print("%-14s %5d scored" % (metro["name"], len(rows)))
-    index.sort(key=lambda m: -m["count"])
-    meta = {"source": "Yelp Open Dataset", "config": vars(config), "metros": index}
-    (args.out_dir / "metros.json").write_text(json.dumps(meta, indent=1))
+    for m in index:
+        m["source"] = "yelp"
+    _merge_metros(args.out_dir, index, config)
 
 
 def cmd_osm_food(args: argparse.Namespace) -> None:
@@ -198,6 +260,17 @@ def main() -> None:
     p.add_argument("--price-exponent", type=float, default=0.5)
     p.add_argument("--min-reviews", type=int, default=5)
     p.set_defaults(func=cmd_yelp_value)
+
+    p = sub.add_parser("gmaps-value", help="Score a city scraped from Google Maps and add it to the value map")
+    p.add_argument("--slug", required=True, help="e.g. london")
+    p.add_argument("--name", required=True, help="Display name, e.g. 'London, ON'")
+    p.add_argument("--raw-dir", type=Path, help="Folder of raw-*.json dumps (default data/gmaps/<slug>/raw)")
+    p.add_argument("--bbox", help="Keep only places inside 'south,west,north,east'")
+    p.add_argument("--out-dir", type=Path, default=ROOT / "site" / "data" / "value")
+    p.add_argument("--prior-reviews", type=int, default=50)
+    p.add_argument("--price-exponent", type=float, default=0.5)
+    p.add_argument("--min-reviews", type=int, default=5)
+    p.set_defaults(func=cmd_gmaps_value)
 
     p = sub.add_parser("osm-food", help="Fetch restaurants, cafes and fast food for a city from OpenStreetMap")
     p.add_argument("--city", default="all", help="City slug from cartograph/cities.py, or 'all' (default)")

@@ -39,6 +39,8 @@ h1 { font-size: 1.3rem; margin: 6px 0 2px; }
 .sub { color: var(--text-secondary); margin: 0 0 14px; font-size: .88rem; }
 h3 { font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin: 18px 0 8px; }
 .hubs { display: flex; flex-wrap: wrap; gap: 6px; }
+.hub-group { font-size: .74rem; color: var(--text-muted); width: 100%; margin: 6px 0 0; }
+.hub-group:first-child { margin-top: 0; }
 .hubs button { font: inherit; font-size: .82rem; border: 1px solid var(--border); background: transparent;
   color: var(--text-primary); border-radius: 999px; padding: 4px 11px; cursor: pointer; }
 .hubs button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
@@ -96,12 +98,12 @@ details code { font-size: .8rem; }
     <details>
       <summary>How the score works</summary>
       <p>1. A rating with few reviews is pulled toward the city average (a Bayesian average with 50 "virtual" average reviews), so a 5.0 with three reviews can't beat a 4.5 with 900.</p>
-      <p>2. Only stars above 3.0 count, so a cheap but mediocre place can't win on price alone. What's left is divided by the square root of the price level ($ = 1 to $$$$ = 4).</p>
+      <p>2. Only stars above 3.0 count, so a cheap but mediocre place can't win on price alone. What's left is divided by the square root of the price level ($ = 1 to $$$$ = 4). For Canadian cities, price comes from what reviewers paid per person, with every $15 counting as one level.</p>
       <p>3. Places are ranked within their city: a score of 90 means better value than 90% of restaurants there.</p>
     </details>
 
     <p class="foot">
-      Ratings, review counts and prices from the Yelp Open Dataset, a research snapshot that may be out of date. Not affiliated with or endorsed by Yelp.
+      <span id="srcNote"></span> Not affiliated with or endorsed by Google or Yelp.
       Basemap © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>.
     </p>
   </aside>
@@ -114,6 +116,9 @@ const dark = matchMedia('(prefers-color-scheme: dark)').matches;
 const surface = getComputedStyle(document.documentElement).getPropertyValue('--surface-1').trim();
 const fmt = n => n.toLocaleString('en-US');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const priceText = p => p.price_per_person != null
+  ? `~$${Math.round(p.price_per_person)}/person`
+  : '$'.repeat(p.price_level);
 const state = { metro: null, prices: new Set([1, 2, 3, 4]), cuisine: '', minReviews: 5, data: null };
 const cache = {};
 let metros = [];
@@ -137,7 +142,7 @@ function update() {
   const ol = document.getElementById('top'); ol.innerHTML = '';
   [...v].sort((a, b) => b.properties.raw_value - a.properties.raw_value).slice(0, 15).forEach(f => {
     const p = f.properties; const li = document.createElement('li');
-    li.innerHTML = `<span class="nm">${esc(p.name)}</span><div class="meta">${p.score} · ${p.rating}★ · ${fmt(p.review_count)} reviews · ${'$'.repeat(p.price_level)}${p.categories && p.categories.length ? ' · ' + esc(p.categories.slice(0, 2).join(', ')) : ''}</div>`;
+    li.innerHTML = `<span class="nm">${esc(p.name)}</span><div class="meta">${p.score} · ${p.rating}★ · ${fmt(p.review_count)} reviews · ${priceText(p)}${p.categories && p.categories.length ? ' · ' + esc(p.categories.slice(0, 2).join(', ')) : ''}</div>`;
     li.onclick = () => map.flyTo({ center: f.geometry.coordinates, zoom: 15 });
     ol.appendChild(li); });
 }
@@ -157,6 +162,9 @@ async function selectMetro(slug) {
   history.replaceState(null, '', '#' + m.slug);
   document.querySelectorAll('#hubs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.slug === m.slug));
   document.querySelector('.sub').textContent = `Where you get the most for your money: star ratings weighed against price for ${fmt(m.count)} restaurants in ${m.name}.`;
+  document.getElementById('srcNote').textContent = m.source === 'google'
+    ? 'Ratings from Google Maps. Prices are what reviewers say they paid per person; places with no answers use the typical price for their kind of restaurant.'
+    : 'Ratings, review counts and price levels from the Yelp Open Dataset, a research snapshot that may be out of date.';
   map.fitBounds(m.bounds, { padding: 30, duration: 700 });
   if (!cache[m.slug]) cache[m.slug] = await fetch(`../data/value/${m.slug}.geojson`).then(r => r.json());
   if (state.metro !== m.slug) return;
@@ -176,8 +184,13 @@ minrev.oninput = () => { state.minReviews = +minrev.value; document.getElementBy
 map.on('load', async () => {
   metros = (await fetch('../data/value/metros.json').then(r => r.json())).metros;
   const hubs = document.getElementById('hubs');
-  metros.forEach(m => { const b = document.createElement('button'); b.textContent = m.name; b.dataset.slug = m.slug;
-    b.onclick = () => selectMetro(m.slug); hubs.appendChild(b); });
+  [['CA', 'Canada'], ['US', 'United States']].forEach(([code, label]) => {
+    const group = metros.filter(m => m.country === code);
+    if (!group.length) return;
+    const h = document.createElement('div'); h.className = 'hub-group'; h.textContent = label; hubs.appendChild(h);
+    group.forEach(m => { const b = document.createElement('button'); b.textContent = m.name; b.dataset.slug = m.slug;
+      b.onclick = () => selectMetro(m.slug); hubs.appendChild(b); });
+  });
   map.addSource('r', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
   map.addLayer({ id: 'r', type: 'circle', source: 'r', layout: { 'circle-sort-key': ['get', 'score'] }, paint: {
     'circle-color': ['interpolate', ['linear'], ['get', 'score'], 0, '#440154', 25, '#3b528b', 50, '#21918c', 75, '#5ec962', 100, '#fde725'],
@@ -188,11 +201,14 @@ map.on('load', async () => {
   map.on('click', 'r', e => { const p = e.features[0].properties; const cats = JSON.parse(p.categories || '[]');
     new maplibregl.Popup({ maxWidth: '260px' }).setLngLat(e.features[0].geometry.coordinates).setHTML(
       `<strong>${esc(p.name)}</strong><div class="pop-meta">Value ${p.score} / 100<br>${p.rating}★ from ${fmt(p.review_count)} reviews (adjusted ${p.adjusted_rating})<br>` +
-      `${'$'.repeat(p.price_level)}${cats.length ? ' · ' + esc(cats.join(', ')) : ''}${p.address ? '<br>' + esc(p.address) : ''}</div>`).addTo(map); });
+      `${priceText(p)}${p.price_per_person != null ? (p.price_reports > 0 ? ` (from ${p.price_reports} reviewer${p.price_reports > 1 ? 's' : ''})` : ' (estimated)') : ''}` +
+      `${cats.length ? '<br>' + esc(cats.join(', ')) : ''}${p.address ? '<br>' + esc(p.address) : ''}</div>`).addTo(map); });
   map.on('mouseenter', 'r', () => map.getCanvas().style.cursor = 'pointer');
   map.on('mouseleave', 'r', () => map.getCanvas().style.cursor = '');
   const fromHash = location.hash.slice(1);
   selectMetro(metros.some(m => m.slug === fromHash) ? fromHash : metros[0].slug);
+  addEventListener('hashchange', () => { const h = location.hash.slice(1);
+    if (h !== state.metro && metros.some(m => m.slug === h)) selectMetro(h); });
 });
 </script>
 </body>

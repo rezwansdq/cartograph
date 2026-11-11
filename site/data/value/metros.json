@@ -1,120 +1,16 @@
 {
- "source": "Yelp Open Dataset",
  "config": {
   "prior_reviews": 50,
   "price_exponent": 0.5,
   "min_reviews": 5,
-  "quality_floor": 3.0
+  "quality_floor": 3.0,
+  "dollars_per_level": 15.0
  },
  "metros": [
   {
-   "slug": "philadelphia",
-   "name": "Philadelphia",
-   "count": 9160,
-   "bounds": [
-    [
-     -75.69054,
-     39.68253
-    ],
-    [
-     -74.76274,
-     40.34073
-    ]
-   ]
-  },
-  {
-   "slug": "tampa-bay",
-   "name": "Tampa Bay",
-   "count": 4744,
-   "bounds": [
-    [
-     -82.82783,
-     27.72337
-    ],
-    [
-     -82.18924,
-     28.36334
-    ]
-   ]
-  },
-  {
-   "slug": "st-louis",
-   "name": "St. Louis",
-   "count": 2974,
-   "bounds": [
-    [
-     -90.52434,
-     38.42677
-    ],
-    [
-     -89.92531,
-     38.89116
-    ]
-   ]
-  },
-  {
-   "slug": "indianapolis",
-   "name": "Indianapolis",
-   "count": 2414,
-   "bounds": [
-    [
-     -86.39181,
-     39.60681
-    ],
-    [
-     -85.95854,
-     39.97903
-    ]
-   ]
-  },
-  {
-   "slug": "nashville",
-   "name": "Nashville",
-   "count": 2390,
-   "bounds": [
-    [
-     -86.95312,
-     35.91632
-    ],
-    [
-     -86.4796,
-     36.46255
-    ]
-   ]
-  },
-  {
-   "slug": "new-orleans",
-   "name": "New Orleans",
-   "count": 1975,
-   "bounds": [
-    [
-     -90.25432,
-     29.87079
-    ],
-    [
-     -89.9623,
-     30.03157
-    ]
-   ]
-  },
-  {
-   "slug": "tucson",
-   "name": "Tucson",
-   "count": 1537,
-   "bounds": [
-    [
-     -111.09519,
-     32.00546
-    ],
-    [
-     -110.77442,
-     32.42682
-    ]
-   ]
-  },
-  {
    "slug": "edmonton",
    "name": "Edmonton",
+   "country": "CA",
    "count": 1318,
    "bounds": [
     [
@@ -125,11 +21,149 @@
      -113.29625,
      53.63541
     ]
-   ]
+   ],
+   "source": "yelp"
+  },
+  {
+   "slug": "london",
+   "name": "London",
+   "count": 432,
+   "bounds": [
+    [
+     -81.38219,
+     42.91549
+    ],
+    [
+     -81.15424,
+     43.04565
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
+   "slug": "philadelphia",
+   "name": "Philadelphia",
+   "country": "US",
+   "count": 9160,
+   "bounds": [
+    [
+     -75.69054,
+     39.68253
+    ],
+    [
+     -74.76274,
+     40.34073
+    ]
+   ],
+   "source": "yelp"
+  },
+  {
+   "slug": "tampa-bay",
+   "name": "Tampa Bay",
+   "country": "US",
+   "count": 4744,
+   "bounds": [
+    [
+     -82.82783,
+     27.72337
+    ],
+    [
+     -82.18924,
+     28.36334
+    ]
+   ],
+   "source": "yelp"
+  },
+  {
+   "slug": "st-louis",
+   "name": "St. Louis",
+   "country": "US",
+   "count": 2974,
+   "bounds": [
+    [
+     -90.52434,
+     38.42677
+    ],
+    [
+     -89.92531,
+     38.89116
+    ]
+   ],
+   "source": "yelp"
+  },
+  {
+   "slug": "indianapolis",
+   "name": "Indianapolis",
+   "country": "US",
+   "count": 2414,
+   "bounds": [
+    [
+     -86.39181,
+     39.60681
+    ],
+    [
+     -85.95854,
+     39.97903
+    ]
+   ],
+   "source": "yelp"
+  },
+  {
+   "slug": "nashville",
+   "name": "Nashville",
+   "country": "US",
+   "count": 2390,
+   "bounds": [
+    [
+     -86.95312,
+     35.91632
+    ],
+    [
+     -86.4796,
+     36.46255
+    ]
+   ],
+   "source": "yelp"
+  },
+  {
+   "slug": "new-orleans",
+   "name": "New Orleans",
+   "country": "US",
+   "count": 1975,
+   "bounds": [
+    [
+     -90.25432,
+     29.87079
+    ],
+    [
+     -89.9623,
+     30.03157
+    ]
+   ],
+   "source": "yelp"
+  },
+  {
+   "slug": "tucson",
+   "name": "Tucson",
+   "country": "US",
+   "count": 1537,
+   "bounds": [
+    [
+     -111.09519,
+     32.00546
+    ],
+    [
+     -110.77442,
+     32.42682
+    ]
+   ],
+   "source": "yelp"
   },
   {
    "slug": "reno",
    "name": "Reno",
+   "country": "US",
    "count": 943,
    "bounds": [
     [
@@ -140,11 +174,13 @@
      -119.70376,
      39.63805
     ]
-   ]
+   ],
+   "source": "yelp"
   },
   {
    "slug": "boise",
    "name": "Boise",
+   "country": "US",
    "count": 781,
    "bounds": [
     [
@@ -155,11 +191,13 @@
      -116.16387,
      43.69424
     ]
-   ]
+   ],
+   "source": "yelp"
   },
   {
    "slug": "santa-barbara",
    "name": "Santa Barbara",
+   "country": "US",
    "count": 582,
    "bounds": [
     [
@@ -170,7 +208,8 @@
      -119.51412,
      34.4417
     ]
-   ]
+   ],
+   "source": "yelp"
   }
  ]
 }

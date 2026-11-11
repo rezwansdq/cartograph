@@ -17,3 +17,7 @@ class Restaurant:
     url: Optional[str] = None
     address: Optional[str] = None
     source: str = "unknown"
+    # Typical spend per person in local currency, when the source has it (Google).
+    # Scoring prefers this over price_level.
+    price_per_person: Optional[float] = None
+    price_reports: int = 0

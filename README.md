@@ -58,6 +58,24 @@ cartograph yelp-open --list-cities        # explore one city at a time
 cartograph yelp-open --city Philadelphia --state PA
 ```
 
+Canadian cities come from Google Maps, scraped with
+[gosom/google-maps-scraper](https://github.com/gosom/google-maps-scraper) (v1.18.2) plus
+`scripts/gmaps-scraper-dump.patch`, which saves each place's raw data so we can read the
+"price per person" answers in its reviews (Google no longer exposes a place-level price):
+
+```bash
+git -C ~/tools/google-maps-scraper apply ~/projects/cartograph/scripts/gmaps-scraper-dump.patch
+go build -o ~/tools/gmaps-scraper ~/tools/google-maps-scraper
+mkdir -p data/gmaps/london/raw && echo restaurants > data/gmaps/london/query.txt
+GMAPS_DUMP_DIR=$PWD/data/gmaps/london/raw ~/tools/gmaps-scraper -input data/gmaps/london/query.txt \
+  -results data/gmaps/london/results.json -json -grid-bbox "42.90,-81.40,43.06,-81.12" \
+  -grid-cell 2.0 -zoom 15 -depth 2 -c 3 -exit-on-inactivity 4m
+cartograph gmaps-value --slug london --name London --bbox "42.88,-81.42,43.08,-81.10"
+```
+
+Price per person is the median of reviewers' answers; places with none get the median for
+their category in that city. Every $15 per person counts as one price level.
+
 Other sources the scorer can use:
 
 ```bash
