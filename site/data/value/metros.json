@@ -25,6 +25,23 @@
    "source": "yelp"
   },
   {
+   "slug": "mississauga",
+   "name": "Mississauga",
+   "count": 1294,
+   "bounds": [
+    [
+     -79.8038,
+     43.47113
+    ],
+    [
+     -79.51029,
+     43.73965
+    ]
+   ],
+   "source": "google",
+   "country": "CA"
+  },
+  {
    "slug": "london",
    "name": "London",
    "count": 432,
