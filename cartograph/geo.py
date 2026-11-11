@@ -7,7 +7,7 @@ from typing import Dict, Iterator, List, Optional, Tuple
 
 import requests
 
-USER_AGENT = "cartograph/0.1 (+https://github.com/rezwansdq/cartograph)"
+USER_AGENT = "cartograph/0.1 (+https://map.rsadeqi.com)"
 
 
 def geocode(place: str) -> Tuple[float, float]:

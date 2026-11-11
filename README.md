@@ -2,7 +2,7 @@
 
 Collect place data from the web and turn it into maps.
 
-**Live site:** https://rezwansdq.github.io/cartograph/
+**Live site:** https://map.rsadeqi.com
 
 ## Maps
 
